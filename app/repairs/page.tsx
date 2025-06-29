@@ -18,6 +18,7 @@ import { useDisclosure } from '@mantine/hooks';
 import { Wrench, Plus, MoreVertical, Edit, Trash2, Phone, Calendar } from 'lucide-react';
 import { RepairForm } from '@/components/RepairForm';
 import { GoogleSheetsSync } from '@/components/GoogleSheetsSync';
+import { useAutoSheets } from '@/hooks/useAutoSheets';
 import { RepairOrder } from '@/types';
 import { notifications } from '@mantine/notifications';
 
@@ -25,6 +26,7 @@ export default function RepairsPage() {
   const [repairOrders, setRepairOrders] = useState<RepairOrder[]>([]);
   const [opened, { open, close }] = useDisclosure(false);
   const [editingOrder, setEditingOrder] = useState<RepairOrder | null>(null);
+  const { saveRepairOrder, isConfigured } = useAutoSheets();
 
   // Load data from localStorage on component mount
   useEffect(() => {
@@ -39,7 +41,7 @@ export default function RepairsPage() {
     localStorage.setItem('repairOrders', JSON.stringify(repairOrders));
   }, [repairOrders]);
 
-  const handleRepairSubmit = (data: Omit<RepairOrder, 'id' | 'createdAt'>) => {
+  const handleRepairSubmit = async (data: Omit<RepairOrder, 'id' | 'createdAt'>) => {
     if (editingOrder) {
       // Update existing order
       const updatedOrder: RepairOrder = {
@@ -49,11 +51,30 @@ export default function RepairsPage() {
       setRepairOrders(prev => prev.map(order => 
         order.id === editingOrder.id ? updatedOrder : order
       ));
-      notifications.show({
-        title: 'Success!',
-        message: 'Repair order updated successfully',
-        color: 'green',
-      });
+      
+      // Auto-save to Google Sheets if configured
+      if (isConfigured) {
+        try {
+          await saveRepairOrder(updatedOrder);
+          notifications.show({
+            title: 'Success!',
+            message: 'Repair order updated and synced to Google Sheets',
+            color: 'green',
+          });
+        } catch (error) {
+          notifications.show({
+            title: 'Partially Successful',
+            message: 'Repair order updated locally, but failed to sync to Google Sheets',
+            color: 'yellow',
+          });
+        }
+      } else {
+        notifications.show({
+          title: 'Success!',
+          message: 'Repair order updated successfully',
+          color: 'green',
+        });
+      }
     } else {
       // Create new order
       const newRepair: RepairOrder = {
@@ -62,11 +83,30 @@ export default function RepairsPage() {
         createdAt: new Date().toISOString(),
       };
       setRepairOrders(prev => [...prev, newRepair]);
-      notifications.show({
-        title: 'Success!',
-        message: 'Repair order created successfully',
-        color: 'green',
-      });
+      
+      // Auto-save to Google Sheets if configured
+      if (isConfigured) {
+        try {
+          await saveRepairOrder(newRepair);
+          notifications.show({
+            title: 'Success!',
+            message: 'Repair order created and saved to Google Sheets',
+            color: 'green',
+          });
+        } catch (error) {
+          notifications.show({
+            title: 'Partially Successful',
+            message: 'Repair order created locally, but failed to save to Google Sheets',
+            color: 'yellow',
+          });
+        }
+      } else {
+        notifications.show({
+          title: 'Success!',
+          message: 'Repair order created successfully',
+          color: 'green',
+        });
+      }
     }
     
     setEditingOrder(null);
@@ -135,6 +175,11 @@ export default function RepairsPage() {
                 <Title className="page-title">Repair Orders</Title>
                 <Text className="page-subtitle">
                   Manage all bag repair orders and track their progress
+                  {isConfigured && (
+                    <Text size="sm" c="green" mt={4}>
+                      ✓ Auto-syncing with Google Sheets
+                    </Text>
+                  )}
                 </Text>
               </div>
             </Group>

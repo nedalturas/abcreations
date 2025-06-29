@@ -18,6 +18,7 @@ import { useDisclosure } from '@mantine/hooks';
 import { Briefcase, Plus, MoreVertical, Edit, Trash2, Phone, Calendar, Package } from 'lucide-react';
 import { JobOrderForm } from '@/components/JobOrderForm';
 import { GoogleSheetsSync } from '@/components/GoogleSheetsSync';
+import { useAutoSheets } from '@/hooks/useAutoSheets';
 import { JobOrder } from '@/types';
 import { notifications } from '@mantine/notifications';
 
@@ -25,6 +26,7 @@ export default function JobOrdersPage() {
   const [jobOrders, setJobOrders] = useState<JobOrder[]>([]);
   const [opened, { open, close }] = useDisclosure(false);
   const [editingOrder, setEditingOrder] = useState<JobOrder | null>(null);
+  const { saveJobOrder, isConfigured } = useAutoSheets();
 
   // Load data from localStorage on component mount
   useEffect(() => {
@@ -39,7 +41,7 @@ export default function JobOrdersPage() {
     localStorage.setItem('jobOrders', JSON.stringify(jobOrders));
   }, [jobOrders]);
 
-  const handleJobOrderSubmit = (data: Omit<JobOrder, 'id' | 'createdAt'>) => {
+  const handleJobOrderSubmit = async (data: Omit<JobOrder, 'id' | 'createdAt'>) => {
     if (editingOrder) {
       // Update existing order
       const updatedOrder: JobOrder = {
@@ -49,11 +51,30 @@ export default function JobOrdersPage() {
       setJobOrders(prev => prev.map(order => 
         order.id === editingOrder.id ? updatedOrder : order
       ));
-      notifications.show({
-        title: 'Success!',
-        message: 'Job order updated successfully',
-        color: 'green',
-      });
+      
+      // Auto-save to Google Sheets if configured
+      if (isConfigured) {
+        try {
+          await saveJobOrder(updatedOrder);
+          notifications.show({
+            title: 'Success!',
+            message: 'Job order updated and synced to Google Sheets',
+            color: 'green',
+          });
+        } catch (error) {
+          notifications.show({
+            title: 'Partially Successful',
+            message: 'Job order updated locally, but failed to sync to Google Sheets',
+            color: 'yellow',
+          });
+        }
+      } else {
+        notifications.show({
+          title: 'Success!',
+          message: 'Job order updated successfully',
+          color: 'green',
+        });
+      }
     } else {
       // Create new order
       const newJobOrder: JobOrder = {
@@ -62,11 +83,30 @@ export default function JobOrdersPage() {
         createdAt: new Date().toISOString(),
       };
       setJobOrders(prev => [...prev, newJobOrder]);
-      notifications.show({
-        title: 'Success!',
-        message: 'Job order created successfully',
-        color: 'green',
-      });
+      
+      // Auto-save to Google Sheets if configured
+      if (isConfigured) {
+        try {
+          await saveJobOrder(newJobOrder);
+          notifications.show({
+            title: 'Success!',
+            message: 'Job order created and saved to Google Sheets',
+            color: 'green',
+          });
+        } catch (error) {
+          notifications.show({
+            title: 'Partially Successful',
+            message: 'Job order created locally, but failed to save to Google Sheets',
+            color: 'yellow',
+          });
+        }
+      } else {
+        notifications.show({
+          title: 'Success!',
+          message: 'Job order created successfully',
+          color: 'green',
+        });
+      }
     }
     
     setEditingOrder(null);
@@ -135,6 +175,11 @@ export default function JobOrdersPage() {
                 <Title className="page-title">Job Orders</Title>
                 <Text className="page-subtitle">
                   Manage manufacturing orders and production schedules
+                  {isConfigured && (
+                    <Text size="sm" c="green" mt={4}>
+                      ✓ Auto-syncing with Google Sheets
+                    </Text>
+                  )}
                 </Text>
               </div>
             </Group>

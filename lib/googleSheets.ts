@@ -23,7 +23,8 @@ export class GoogleSheetsService {
       const response = await fetch(url);
       
       if (!response.ok) {
-        throw new Error(`Google Sheets API error: ${response.status}`);
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(`Google Sheets API error: ${response.status} - ${errorData.error?.message || 'Unknown error'}`);
       }
       
       const data = await response.json();
@@ -37,7 +38,7 @@ export class GoogleSheetsService {
   // Write data to Google Sheets (append new row)
   async appendData(values: any[]): Promise<void> {
     try {
-      const url = `${this.baseUrl}/${this.config.spreadsheetId}/values/${this.config.range}:append?valueInputOption=RAW&key=${this.config.apiKey}`;
+      const url = `${this.baseUrl}/${this.config.spreadsheetId}/values/${this.config.range}:append?valueInputOption=RAW&insertDataOption=INSERT_ROWS&key=${this.config.apiKey}`;
       
       const response = await fetch(url, {
         method: 'POST',
@@ -50,7 +51,8 @@ export class GoogleSheetsService {
       });
       
       if (!response.ok) {
-        throw new Error(`Google Sheets API error: ${response.status}`);
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(`Google Sheets API error: ${response.status} - ${errorData.error?.message || 'Failed to write data'}`);
       }
       
       console.log('Data successfully written to Google Sheets');
@@ -76,7 +78,8 @@ export class GoogleSheetsService {
       });
       
       if (!response.ok) {
-        throw new Error(`Google Sheets API error: ${response.status}`);
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(`Google Sheets API error: ${response.status} - ${errorData.error?.message || 'Failed to update data'}`);
       }
       
       console.log('Data successfully updated in Google Sheets');
