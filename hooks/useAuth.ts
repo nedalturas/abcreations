@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, createContext, useContext } from 'react';
+import { useState, useEffect, createContext, useContext, ReactNode } from 'react';
 import {
   User,
   signInWithEmailAndPassword,
@@ -45,7 +45,11 @@ export function useAuth() {
   return context;
 }
 
-export function useAuthProvider(): AuthContextType {
+interface AuthProviderProps {
+  children: ReactNode;
+}
+
+export function AuthProvider({ children }: AuthProviderProps) {
   const [user, setUser] = useState<AuthUser | null>(null);
   const [loading, setLoading] = useState(true);
 
@@ -307,7 +311,7 @@ export function useAuthProvider(): AuthContextType {
     }
   };
 
-  return {
+  const value: AuthContextType = {
     user,
     loading,
     signIn,
@@ -318,9 +322,13 @@ export function useAuthProvider(): AuthContextType {
     completeMagicLinkSignIn,
     updateUserProfile,
   };
-}
 
-export const AuthProvider = AuthContext.Provider;
+  return (
+    <AuthContext.Provider value={value}>
+      {children}
+    </AuthContext.Provider>
+  );
+}
 
 // Helper function to get user-friendly error messages
 function getAuthErrorMessage(errorCode: string): string {

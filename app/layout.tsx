@@ -4,7 +4,7 @@ import { Inter } from 'next/font/google';
 import { ColorSchemeScript, MantineProvider } from '@mantine/core';
 import { Notifications } from '@mantine/notifications';
 import { Navbar } from '@/components/Navbar';
-import { AuthProvider, useAuthProvider } from '@/hooks/useAuth';
+import { AuthProvider } from '@/hooks/useAuth';
 import { AuthGuard } from '@/components/AuthGuard';
 
 const inter = Inter({ subsets: ['latin'] });
@@ -15,15 +15,11 @@ export const metadata: Metadata = {
 };
 
 function AppContent({ children }: { children: React.ReactNode }) {
-  const auth = useAuthProvider();
-
   return (
-    <AuthProvider value={auth}>
-      <AuthGuard>
-        <Navbar />
-        {children}
-      </AuthGuard>
-    </AuthProvider>
+    <AuthGuard>
+      <Navbar />
+      {children}
+    </AuthGuard>
   );
 }
 
@@ -40,7 +36,9 @@ export default function RootLayout({
       <body className={inter.className}>
         <MantineProvider>
           <Notifications />
-          <AppContent>{children}</AppContent>
+          <AuthProvider>
+            <AppContent>{children}</AppContent>
+          </AuthProvider>
         </MantineProvider>
       </body>
     </html>
