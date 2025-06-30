@@ -133,7 +133,7 @@ export default function JobOrdersPage() {
                 <Title className="page-title">Job Orders</Title>
                 <Text className="page-subtitle">
                   Manage manufacturing orders and production schedules
-                  <Text size="sm" c="green" mt={4}>
+                  <Text component="span" size="sm" c="green" mt={4}>
                     ✓ Real-time sync with Firebase
                   </Text>
                 </Text>

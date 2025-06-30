@@ -61,7 +61,7 @@ export default function Dashboard() {
               <Title className="page-title">Dashboard</Title>
               <Text className="page-subtitle">
                 Overview of your repair and manufacturing operations
-                <Text size="sm" c="green" mt={4}>
+                <Text component="span" size="sm" c="green" mt={4}>
                   ✓ Real-time data with Firebase
                 </Text>
               </Text>
