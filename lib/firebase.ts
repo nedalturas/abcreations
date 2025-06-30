@@ -1,8 +1,8 @@
 // Firebase configuration and initialization
 import { initializeApp, getApps, getApp } from 'firebase/app';
-import { getFirestore, connectFirestoreEmulator } from 'firebase/firestore';
-import { getAuth, connectAuthEmulator } from 'firebase/auth';
-import { getStorage, connectStorageEmulator } from 'firebase/storage';
+import { getFirestore, connectFirestoreEmulator, Firestore } from 'firebase/firestore';
+import { getAuth, connectAuthEmulator, Auth } from 'firebase/auth';
+import { getStorage, connectStorageEmulator, FirebaseStorage } from 'firebase/storage';
 
 // Check if we have a valid Firebase configuration
 const hasValidConfig = () => {
@@ -27,10 +27,10 @@ const firebaseConfig = {
 };
 
 // Initialize Firebase only if we have valid config
-let app;
-let db;
-let auth;
-let storage;
+let app: any;
+let db: Firestore | null;
+let auth: Auth | null;
+let storage: FirebaseStorage | null;
 
 if (hasValidConfig()) {
   // Initialize Firebase
