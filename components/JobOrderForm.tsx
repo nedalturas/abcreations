@@ -103,7 +103,7 @@ export function JobOrderForm({ onSubmit, initialData }: JobOrderFormProps) {
             leftSection={<DollarSign size={16} />}
             required
             min={0}
-            precision={2}
+            decimalScale={2}
             {...form.getInputProps('price')}
           />
         </Group>
