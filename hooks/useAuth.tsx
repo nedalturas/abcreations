@@ -93,23 +93,47 @@ export function AuthProvider({ children }: AuthProviderProps) {
     }
 
     const provider = new GoogleAuthProvider();
+    
+    // Configure the provider with additional settings
+    provider.setCustomParameters({
+      prompt: 'select_account'
+    });
+    
+    // Add required scopes
     provider.addScope('email');
     provider.addScope('profile');
 
     try {
+      // Check if we're in a secure context
+      if (typeof window !== 'undefined' && window.location.protocol !== 'https:' && window.location.hostname !== 'localhost') {
+        throw new Error('Google Sign-In requires HTTPS or localhost');
+      }
+
       const result = await signInWithPopup(auth, provider);
+      
       notifications.show({
         title: 'Welcome!',
-        message: `Signed in as ${result.user.displayName}`,
+        message: `Signed in as ${result.user.displayName || result.user.email}`,
         color: 'green',
       });
     } catch (error: any) {
-      const errorMessage = getAuthErrorMessage(error.code);
+      console.error('Google Sign-In Error:', error);
+      
+      let errorMessage = 'An error occurred during sign-in. Please try again.';
+      
+      // Handle specific error cases
+      if (error.code) {
+        errorMessage = getAuthErrorMessage(error.code);
+      } else if (error.message) {
+        errorMessage = error.message;
+      }
+      
       notifications.show({
         title: 'Sign In Failed',
         message: errorMessage,
         color: 'red',
       });
+      
       throw error;
     }
   };
@@ -204,7 +228,17 @@ function getAuthErrorMessage(errorCode: string): string {
       return 'Network error. Please check your connection.';
     case 'auth/too-many-requests':
       return 'Too many failed attempts. Please try again later.';
+    case 'auth/configuration-not-found':
+      return 'Google Sign-In is not properly configured. Please check your Firebase settings.';
+    case 'auth/invalid-api-key':
+      return 'Invalid API key. Please check your Firebase configuration.';
+    case 'auth/invalid-app-credential':
+      return 'Invalid app credentials. Please check your Firebase configuration.';
+    case 'auth/operation-not-allowed':
+      return 'Google Sign-In is not enabled. Please enable it in Firebase Console.';
+    case 'auth/unauthorized-domain':
+      return 'This domain is not authorized. Please add it to your Firebase project settings.';
     default:
-      return 'An error occurred during sign-in. Please try again.';
+      return `Authentication error (${errorCode}). Please check your Firebase configuration.`;
   }
 }

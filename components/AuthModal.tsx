@@ -11,8 +11,9 @@ import {
   Divider,
   Center,
 } from '@mantine/core';
-import { Chrome, Shield, Zap } from 'lucide-react';
+import { Chrome, Shield, Zap, AlertCircle } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
+import { hasValidConfig } from '@/lib/firebase';
 
 interface AuthModalProps {
   opened: boolean;
@@ -29,6 +30,7 @@ export function AuthModal({ opened, onClose }: AuthModalProps) {
       await signInWithGoogle();
       onClose();
     } catch (error) {
+      console.error('Sign-in error:', error);
       // Error is handled in the hook
     } finally {
       setIsLoading(false);
@@ -56,6 +58,14 @@ export function AuthModal({ opened, onClose }: AuthModalProps) {
           </Text>
         </div>
 
+        {!hasValidConfig() && (
+          <Alert icon={<AlertCircle size={16} />} color="blue" variant="light">
+            <Text size="sm">
+              <strong>Demo Mode:</strong> Firebase is not configured. You can still explore the app with demo data.
+            </Text>
+          </Alert>
+        )}
+
         <Alert color="blue" variant="light">
           <Group gap="sm">
             <Shield size={16} />
@@ -82,7 +92,7 @@ export function AuthModal({ opened, onClose }: AuthModalProps) {
             fontWeight: 600,
           }}
         >
-          Continue with Google
+          {hasValidConfig() ? 'Continue with Google' : 'Continue with Demo'}
         </Button>
 
         <Divider />
@@ -98,6 +108,20 @@ export function AuthModal({ opened, onClose }: AuthModalProps) {
             By signing in, you agree to our terms of service and privacy policy
           </Text>
         </Stack>
+
+        {hasValidConfig() && (
+          <Alert icon={<AlertCircle size={16} />} color="orange" variant="light">
+            <Text size="sm">
+              <strong>Having trouble signing in?</strong>
+              <br />
+              • Make sure pop-ups are enabled
+              <br />
+              • Check that Google Sign-In is enabled in Firebase Console
+              <br />
+              • Verify your domain is authorized in Firebase settings
+            </Text>
+          </Alert>
+        )}
       </Stack>
     </Modal>
   );

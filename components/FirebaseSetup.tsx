@@ -231,6 +231,13 @@ export function FirebaseSetup({ opened, onClose, onSave, initialConfig }: Fireba
                   <strong>Important:</strong> Add your domain to authorized domains if deploying
                 </List.Item>
               </List>
+              
+              <Alert icon={<AlertCircle size={16} />} color="orange" variant="light" mt="sm">
+                <Text size="sm">
+                  <strong>Critical:</strong> For localhost development, make sure "localhost" is in your authorized domains.
+                  For production, add your actual domain (e.g., "yourdomain.com").
+                </Text>
+              </Alert>
             </div>
 
             <div>
@@ -250,7 +257,7 @@ export function FirebaseSetup({ opened, onClose, onSave, initialConfig }: Fireba
               <List size="sm" spacing="xs">
                 <List.Item>In Firebase Console, click the gear icon → "Project settings"</List.Item>
                 <List.Item>Scroll down to "Your apps" section</List.Item>
-                <List.Item>Click the web icon (</>) to add a web app</List.Item>
+                <List.Item>Click the web icon (&lt;/&gt;) to add a web app</List.Item>
                 <List.Item>Enter app nickname (e.g., "BagCraft Web")</List.Item>
                 <List.Item>Copy the configuration object that appears</List.Item>
               </List>
@@ -299,6 +306,24 @@ NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET=your_project.appspot.com
 NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID=your_sender_id
 NEXT_PUBLIC_FIREBASE_APP_ID=your_app_id`}
               </Code>
+            </div>
+
+            <div>
+              <Text fw={600} mb="sm">🔍 Troubleshooting Google Sign-In</Text>
+              <List size="sm" spacing="xs">
+                <List.Item>
+                  <strong>"Invalid action" error:</strong> Check that Google provider is enabled in Firebase Console
+                </List.Item>
+                <List.Item>
+                  <strong>Pop-up blocked:</strong> Allow pop-ups for your domain in browser settings
+                </List.Item>
+                <List.Item>
+                  <strong>Unauthorized domain:</strong> Add your domain to authorized domains in Firebase Console
+                </List.Item>
+                <List.Item>
+                  <strong>Configuration errors:</strong> Verify all environment variables are set correctly
+                </List.Item>
+              </List>
             </div>
           </Stack>
         </Tabs.Panel>
