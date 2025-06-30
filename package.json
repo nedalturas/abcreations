@@ -15,18 +15,17 @@
     "@mantine/form": "^7.13.2",
     "@mantine/hooks": "^7.13.2",
     "@mantine/notifications": "^7.13.2",
-    "@next/swc-wasm-nodejs": "13.5.1",
-    "@types/node": "20.6.2",
-    "@types/react": "18.2.22",
-    "@types/react-dom": "18.2.7",
+    "@types/node": "^20.10.0",
+    "@types/react": "^18.2.45",
+    "@types/react-dom": "^18.2.18",
     "dayjs": "^1.11.10",
-    "eslint": "8.49.0",
-    "eslint-config-next": "13.5.1",
+    "eslint": "^8.56.0",
+    "eslint-config-next": "^14.0.4",
     "firebase": "^10.7.1",
     "lucide-react": "^0.263.1",
-    "next": "13.5.1",
-    "react": "18.2.0",
-    "react-dom": "18.2.0",
-    "typescript": "5.2.2"
+    "next": "^14.0.4",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "typescript": "^5.3.3"
   }
 }
