@@ -94,7 +94,8 @@ export function RepairForm({ onSubmit, initialData }: RepairFormProps) {
             leftSection={<DollarSign size={16} />}
             required
             min={0}
-            precision={2}
+            decimalScale={2}
+            fixedDecimalScale
             {...form.getInputProps('price')}
           />
 
