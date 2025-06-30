@@ -27,18 +27,18 @@ export function Navbar() {
 
   return (
     <div className="navbar">
-      <Container size="lg">
+      <Container >
         <Group justify="space-between" h={70}>
           <Text className="navbar-brand">
-            BagCraft Pro
+            ABC Portal
           </Text>
 
           {/* Desktop Navigation */}
-          <Group gap="xs" visibleFrom="sm">
+          <Group  visibleFrom="sm">
             {navigation.map((item) => {
               const Icon = item.icon;
               const isActive = pathname === item.href;
-              
+
               return (
                 <Link
                   key={item.name}
@@ -48,13 +48,17 @@ export function Navbar() {
                   <Icon size={18} />
                   {item.name}
                 </Link>
+
               );
             })}
+
+            {user && <UserMenu />}
           </Group>
 
           {/* User Menu and Mobile Menu Button */}
           <Group gap="sm">
-            {user && <UserMenu />}
+            {/* {user && <UserMenu />} */}
+
             <Burger opened={opened} onClick={toggle} hiddenFrom="sm" size="sm" />
           </Group>
         </Group>
@@ -73,7 +77,7 @@ export function Navbar() {
           {navigation.map((item) => {
             const Icon = item.icon;
             const isActive = pathname === item.href;
-            
+
             return (
               <UnstyledButton
                 key={item.name}

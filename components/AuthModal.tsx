@@ -44,7 +44,7 @@ export function AuthModal({ opened, onClose }: AuthModalProps) {
       onClose={onClose}
       title={
         <Group gap="sm">
-          <Text fw={600} size="lg">Welcome to BagCraft Pro</Text>
+          <Text fw={600} size="lg">Welcome to Alturas Bag Creations Portal</Text>
         </Group>
       }
       size="md"

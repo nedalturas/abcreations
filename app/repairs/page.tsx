@@ -260,7 +260,7 @@ export default function RepairsPage() {
           }}
           title={
             <Group gap="sm">
-              <ThemeIcon size="sm" variant="light" color="blue" radius="xl">
+              <ThemeIcon size="sm" variant="light" color="blue" >
                 <Wrench size={16} />
               </ThemeIcon>
               <Text fw={600}>
@@ -270,7 +270,7 @@ export default function RepairsPage() {
           }
           size="lg"
           centered
-          radius="xl"
+          
         >
           <RepairForm
             onSubmit={handleRepairSubmit}
