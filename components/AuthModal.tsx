@@ -10,8 +10,9 @@ import {
   Alert,
   Divider,
   Center,
+  Code,
 } from '@mantine/core';
-import { Chrome, Shield, Zap, AlertCircle } from 'lucide-react';
+import { Chrome, Shield, Zap, AlertCircle, Lock } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 import { hasValidConfig } from '@/lib/firebase';
 
@@ -66,6 +67,18 @@ export function AuthModal({ opened, onClose }: AuthModalProps) {
           </Alert>
         )}
 
+        <Alert color="orange" variant="light">
+          <Group gap="sm">
+            <Lock size={16} />
+            <div>
+              <Text size="sm" fw={600}>Restricted Access</Text>
+              <Text size="xs" c="dimmed">
+                Only authorized email addresses can access this application
+              </Text>
+            </div>
+          </Group>
+        </Alert>
+
         <Alert color="blue" variant="light">
           <Group gap="sm">
             <Shield size={16} />
@@ -112,16 +125,23 @@ export function AuthModal({ opened, onClose }: AuthModalProps) {
         {hasValidConfig() && (
           <Alert icon={<AlertCircle size={16} />} color="orange" variant="light">
             <Text size="sm">
-              <strong>Having trouble signing in?</strong>
+              <strong>Access Denied?</strong>
               <br />
-              • Make sure pop-ups are enabled
+              • Make sure you're using an authorized email address
               <br />
-              • Check that Google Sign-In is enabled in Firebase Console
+              • Contact your administrator to add your email to the allowed list
               <br />
-              • Verify your domain is authorized in Firebase settings
+              • Check that pop-ups are enabled for Google Sign-In
             </Text>
           </Alert>
         )}
+
+        <Alert icon={<AlertCircle size={16} />} color="gray" variant="light">
+          <Text size="xs" c="dimmed">
+            <strong>For Administrators:</strong> To add or remove authorized emails, 
+            edit the <Code>ALLOWED_EMAILS</Code> array in <Code>lib/allowedEmails.ts</Code>
+          </Text>
+        </Alert>
       </Stack>
     </Modal>
   );

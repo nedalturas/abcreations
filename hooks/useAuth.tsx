@@ -10,6 +10,7 @@ import {
   updateProfile,
 } from 'firebase/auth';
 import { auth, hasValidConfig } from '@/lib/firebase';
+import { isEmailAllowed } from '@/lib/allowedEmails';
 import { notifications } from '@mantine/notifications';
 
 export interface AuthUser {
@@ -60,12 +61,26 @@ export function AuthProvider({ children }: AuthProviderProps) {
 
     const unsubscribe = onAuthStateChanged(auth, (firebaseUser) => {
       if (firebaseUser) {
-        setUser({
-          uid: firebaseUser.uid,
-          email: firebaseUser.email,
-          displayName: firebaseUser.displayName,
-          photoURL: firebaseUser.photoURL,
-        });
+        // Check if the user's email is allowed
+        if (isEmailAllowed(firebaseUser.email)) {
+          setUser({
+            uid: firebaseUser.uid,
+            email: firebaseUser.email,
+            displayName: firebaseUser.displayName,
+            photoURL: firebaseUser.photoURL,
+          });
+        } else {
+          // User is not authorized - sign them out
+          signOut(auth).then(() => {
+            notifications.show({
+              title: 'Access Denied',
+              message: 'Your email address is not authorized to access this application.',
+              color: 'red',
+              autoClose: false,
+            });
+          });
+          setUser(null);
+        }
       } else {
         setUser(null);
       }
@@ -111,6 +126,21 @@ export function AuthProvider({ children }: AuthProviderProps) {
 
       const result = await signInWithPopup(auth, provider);
       
+      // Check if the user's email is allowed
+      if (!isEmailAllowed(result.user.email)) {
+        // Sign out the user immediately
+        await signOut(auth);
+        
+        notifications.show({
+          title: 'Access Denied',
+          message: `The email ${result.user.email} is not authorized to access this application. Please contact your administrator.`,
+          color: 'red',
+          autoClose: false,
+        });
+        
+        throw new Error('Email not authorized');
+      }
+      
       notifications.show({
         title: 'Welcome!',
         message: `Signed in as ${result.user.displayName || result.user.email}`,
@@ -122,7 +152,10 @@ export function AuthProvider({ children }: AuthProviderProps) {
       let errorMessage = 'An error occurred during sign-in. Please try again.';
       
       // Handle specific error cases
-      if (error.code) {
+      if (error.message === 'Email not authorized') {
+        // Don't change the error message for unauthorized emails
+        throw error;
+      } else if (error.code) {
         errorMessage = getAuthErrorMessage(error.code);
       } else if (error.message) {
         errorMessage = error.message;
