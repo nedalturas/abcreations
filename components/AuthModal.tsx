@@ -3,19 +3,15 @@
 import { useState } from 'react';
 import {
   Modal,
-  TextInput,
-  PasswordInput,
   Button,
   Stack,
   Group,
   Text,
-  Tabs,
-  Divider,
-  Anchor,
   Alert,
+  Divider,
+  Center,
 } from '@mantine/core';
-import { useForm } from '@mantine/form';
-import { Mail, Lock, User, Wand2, AlertCircle } from 'lucide-react';
+import { Chrome, Shield, Zap } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 
 interface AuthModalProps {
@@ -24,98 +20,14 @@ interface AuthModalProps {
 }
 
 export function AuthModal({ opened, onClose }: AuthModalProps) {
-  const [activeTab, setActiveTab] = useState<string | null>('signin');
   const [isLoading, setIsLoading] = useState(false);
-  const { signIn, signUp, resetPassword, sendMagicLink } = useAuth();
+  const { signInWithGoogle } = useAuth();
 
-  const signInForm = useForm({
-    initialValues: {
-      email: '',
-      password: '',
-    },
-    validate: {
-      email: (value) => (/^\S+@\S+$/.test(value) ? null : 'Invalid email'),
-      password: (value) => (value.length < 6 ? 'Password must be at least 6 characters' : null),
-    },
-  });
-
-  const signUpForm = useForm({
-    initialValues: {
-      email: '',
-      password: '',
-      confirmPassword: '',
-      displayName: '',
-    },
-    validate: {
-      email: (value) => (/^\S+@\S+$/.test(value) ? null : 'Invalid email'),
-      password: (value) => (value.length < 6 ? 'Password must be at least 6 characters' : null),
-      confirmPassword: (value, values) =>
-        value !== values.password ? 'Passwords do not match' : null,
-      displayName: (value) => (value.length < 2 ? 'Name must be at least 2 characters' : null),
-    },
-  });
-
-  const magicLinkForm = useForm({
-    initialValues: {
-      email: '',
-    },
-    validate: {
-      email: (value) => (/^\S+@\S+$/.test(value) ? null : 'Invalid email'),
-    },
-  });
-
-  const resetForm = useForm({
-    initialValues: {
-      email: '',
-    },
-    validate: {
-      email: (value) => (/^\S+@\S+$/.test(value) ? null : 'Invalid email'),
-    },
-  });
-
-  const handleSignIn = async (values: typeof signInForm.values) => {
+  const handleGoogleSignIn = async () => {
     setIsLoading(true);
     try {
-      await signIn(values.email, values.password);
+      await signInWithGoogle();
       onClose();
-      signInForm.reset();
-    } catch (error) {
-      // Error is handled in the hook
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  const handleSignUp = async (values: typeof signUpForm.values) => {
-    setIsLoading(true);
-    try {
-      await signUp(values.email, values.password, values.displayName);
-      onClose();
-      signUpForm.reset();
-    } catch (error) {
-      // Error is handled in the hook
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  const handleMagicLink = async (values: typeof magicLinkForm.values) => {
-    setIsLoading(true);
-    try {
-      await sendMagicLink(values.email);
-      magicLinkForm.reset();
-    } catch (error) {
-      // Error is handled in the hook
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  const handleResetPassword = async (values: typeof resetForm.values) => {
-    setIsLoading(true);
-    try {
-      await resetPassword(values.email);
-      resetForm.reset();
     } catch (error) {
       // Error is handled in the hook
     } finally {
@@ -137,173 +49,56 @@ export function AuthModal({ opened, onClose }: AuthModalProps) {
       closeOnClickOutside={false}
       closeOnEscape={false}
     >
-      <Tabs value={activeTab} onChange={setActiveTab}>
-        <Tabs.List grow>
-          <Tabs.Tab value="signin" leftSection={<Lock size={16} />}>
-            Sign In
-          </Tabs.Tab>
-          <Tabs.Tab value="signup" leftSection={<User size={16} />}>
-            Sign Up
-          </Tabs.Tab>
-          <Tabs.Tab value="magic" leftSection={<Wand2 size={16} />}>
-            Magic Link
-          </Tabs.Tab>
-        </Tabs.List>
+      <Stack gap="lg">
+        <div style={{ textAlign: 'center' }}>
+          <Text size="sm" c="dimmed" mb="md">
+            Sign in to access your bag repair and manufacturing management system
+          </Text>
+        </div>
 
-        <Tabs.Panel value="signin" pt="md">
-          <form onSubmit={signInForm.onSubmit(handleSignIn)}>
-            <Stack gap="md">
-              <TextInput
-                label="Email"
-                placeholder="Enter your email"
-                leftSection={<Mail size={16} />}
-                required
-                {...signInForm.getInputProps('email')}
-              />
+        <Alert color="blue" variant="light">
+          <Group gap="sm">
+            <Shield size={16} />
+            <div>
+              <Text size="sm" fw={600}>Secure Authentication</Text>
+              <Text size="xs" c="dimmed">
+                We use Google's secure authentication system to protect your account
+              </Text>
+            </div>
+          </Group>
+        </Alert>
 
-              <PasswordInput
-                label="Password"
-                placeholder="Enter your password"
-                leftSection={<Lock size={16} />}
-                required
-                {...signInForm.getInputProps('password')}
-              />
+        <Button
+          leftSection={<Chrome size={20} />}
+          onClick={handleGoogleSignIn}
+          loading={isLoading}
+          size="lg"
+          fullWidth
+          variant="gradient"
+          gradient={{ from: 'blue', to: 'cyan', deg: 45 }}
+          style={{
+            height: '50px',
+            fontSize: '16px',
+            fontWeight: 600,
+          }}
+        >
+          Continue with Google
+        </Button>
 
-              <Button
-                type="submit"
-                fullWidth
-                loading={isLoading}
-                className="btn-primary"
-              >
-                Sign In
-              </Button>
+        <Divider />
 
-              <Divider />
-
-              <Group justify="center">
-                <Anchor
-                  size="sm"
-                  onClick={() => setActiveTab('reset')}
-                  style={{ cursor: 'pointer' }}
-                >
-                  Forgot your password?
-                </Anchor>
-              </Group>
-            </Stack>
-          </form>
-        </Tabs.Panel>
-
-        <Tabs.Panel value="signup" pt="md">
-          <form onSubmit={signUpForm.onSubmit(handleSignUp)}>
-            <Stack gap="md">
-              <TextInput
-                label="Full Name"
-                placeholder="Enter your full name"
-                leftSection={<User size={16} />}
-                required
-                {...signUpForm.getInputProps('displayName')}
-              />
-
-              <TextInput
-                label="Email"
-                placeholder="Enter your email"
-                leftSection={<Mail size={16} />}
-                required
-                {...signUpForm.getInputProps('email')}
-              />
-
-              <PasswordInput
-                label="Password"
-                placeholder="Create a password"
-                leftSection={<Lock size={16} />}
-                required
-                {...signUpForm.getInputProps('password')}
-              />
-
-              <PasswordInput
-                label="Confirm Password"
-                placeholder="Confirm your password"
-                leftSection={<Lock size={16} />}
-                required
-                {...signUpForm.getInputProps('confirmPassword')}
-              />
-
-              <Button
-                type="submit"
-                fullWidth
-                loading={isLoading}
-                className="btn-primary"
-              >
-                Create Account
-              </Button>
-            </Stack>
-          </form>
-        </Tabs.Panel>
-
-        <Tabs.Panel value="magic" pt="md">
-          <form onSubmit={magicLinkForm.onSubmit(handleMagicLink)}>
-            <Stack gap="md">
-              <Alert icon={<Wand2 size={16} />} color="blue" variant="light">
-                Enter your email and we'll send you a magic link to sign in without a password!
-              </Alert>
-
-              <TextInput
-                label="Email"
-                placeholder="Enter your email"
-                leftSection={<Mail size={16} />}
-                required
-                {...magicLinkForm.getInputProps('email')}
-              />
-
-              <Button
-                type="submit"
-                fullWidth
-                loading={isLoading}
-                className="btn-primary"
-              >
-                Send Magic Link
-              </Button>
-            </Stack>
-          </form>
-        </Tabs.Panel>
-
-        <Tabs.Panel value="reset" pt="md">
-          <form onSubmit={resetForm.onSubmit(handleResetPassword)}>
-            <Stack gap="md">
-              <Alert icon={<AlertCircle size={16} />} color="orange" variant="light">
-                Enter your email and we'll send you instructions to reset your password.
-              </Alert>
-
-              <TextInput
-                label="Email"
-                placeholder="Enter your email"
-                leftSection={<Mail size={16} />}
-                required
-                {...resetForm.getInputProps('email')}
-              />
-
-              <Button
-                type="submit"
-                fullWidth
-                loading={isLoading}
-                className="btn-primary"
-              >
-                Send Reset Email
-              </Button>
-
-              <Group justify="center">
-                <Anchor
-                  size="sm"
-                  onClick={() => setActiveTab('signin')}
-                  style={{ cursor: 'pointer' }}
-                >
-                  Back to Sign In
-                </Anchor>
-              </Group>
-            </Stack>
-          </form>
-        </Tabs.Panel>
-      </Tabs>
+        <Stack gap="xs">
+          <Group gap="xs" justify="center">
+            <Zap size={14} />
+            <Text size="xs" c="dimmed">
+              Quick and secure access
+            </Text>
+          </Group>
+          <Text size="xs" c="dimmed" ta="center">
+            By signing in, you agree to our terms of service and privacy policy
+          </Text>
+        </Stack>
+      </Stack>
     </Modal>
   );
 }

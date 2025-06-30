@@ -121,7 +121,7 @@ export function FirebaseSetup({ opened, onClose, onSave, initialConfig }: Fireba
           <form onSubmit={form.onSubmit(handleSubmit)}>
             <Stack gap="md">
               <Alert icon={<AlertCircle size={16} />} color="blue" variant="light">
-                Connect your Firebase project to enable real-time data sync and cloud storage!
+                Connect your Firebase project to enable Google authentication and real-time data sync!
               </Alert>
 
               <Textarea
@@ -216,7 +216,25 @@ export function FirebaseSetup({ opened, onClose, onSave, initialConfig }: Fireba
             </div>
 
             <div>
-              <Text fw={600} mb="sm">⚙️ Step 2: Configure Firebase Services</Text>
+              <Text fw={600} mb="sm">🔐 Step 2: Enable Google Authentication</Text>
+              <List size="sm" spacing="xs">
+                <List.Item>
+                  <strong>Authentication:</strong> Go to "Authentication" → "Get started"
+                </List.Item>
+                <List.Item>
+                  Click "Sign-in method" tab → Enable "Google" provider
+                </List.Item>
+                <List.Item>
+                  Enter your project support email and save
+                </List.Item>
+                <List.Item>
+                  <strong>Important:</strong> Add your domain to authorized domains if deploying
+                </List.Item>
+              </List>
+            </div>
+
+            <div>
+              <Text fw={600} mb="sm">⚙️ Step 3: Configure Firebase Services</Text>
               <List size="sm" spacing="xs">
                 <List.Item>
                   <strong>Firestore Database:</strong> Go to "Firestore Database" → "Create database" → Start in "Test mode"
@@ -224,25 +242,22 @@ export function FirebaseSetup({ opened, onClose, onSave, initialConfig }: Fireba
                 <List.Item>
                   <strong>Storage:</strong> Go to "Storage" → "Get started" → Start in "Test mode"
                 </List.Item>
-                <List.Item>
-                  <strong>Authentication (Optional):</strong> Go to "Authentication" → "Get started" → Enable "Email/Password"
-                </List.Item>
               </List>
             </div>
 
             <div>
-              <Text fw={600} mb="sm">🔧 Step 3: Get Configuration</Text>
+              <Text fw={600} mb="sm">🔧 Step 4: Get Configuration</Text>
               <List size="sm" spacing="xs">
                 <List.Item>In Firebase Console, click the gear icon → "Project settings"</List.Item>
                 <List.Item>Scroll down to "Your apps" section</List.Item>
-                <List.Item>Click the web icon (&lt;/&gt;) to add a web app</List.Item>
+                <List.Item>Click the web icon (</>) to add a web app</List.Item>
                 <List.Item>Enter app nickname (e.g., "BagCraft Web")</List.Item>
                 <List.Item>Copy the configuration object that appears</List.Item>
               </List>
             </div>
 
             <div>
-              <Text fw={600} mb="sm">📋 Step 4: Security Rules (Important!)</Text>
+              <Text fw={600} mb="sm">📋 Step 5: Security Rules (Important!)</Text>
               <Text size="sm" c="dimmed" mb="sm">
                 Update your Firestore security rules for production:
               </Text>
@@ -250,29 +265,29 @@ export function FirebaseSetup({ opened, onClose, onSave, initialConfig }: Fireba
 {`rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
-    // Allow read/write access to repair orders
+    // Allow read/write access to repair orders for authenticated users
     match /repairOrders/{document} {
-      allow read, write: if true; // Change this for production
+      allow read, write: if request.auth != null;
     }
     
-    // Allow read/write access to job orders
+    // Allow read/write access to job orders for authenticated users
     match /jobOrders/{document} {
-      allow read, write: if true; // Change this for production
+      allow read, write: if request.auth != null;
     }
   }
 }`}
               </Code>
             </div>
 
-            <Alert icon={<AlertCircle size={16} />} color="orange" variant="light">
+            <Alert icon={<AlertCircle size={16} />} color="green" variant="light">
               <Text size="sm">
-                <strong>Security Note:</strong> The rules above allow public access for testing. 
-                For production, implement proper authentication and restrict access based on user permissions.
+                <strong>Google Sign-In:</strong> Users will authenticate using their Google accounts. 
+                This provides secure, passwordless authentication with profile information automatically populated.
               </Text>
             </Alert>
 
             <div>
-              <Text fw={600} mb="sm">🌐 Step 5: Environment Variables</Text>
+              <Text fw={600} mb="sm">🌐 Step 6: Environment Variables</Text>
               <Text size="sm" c="dimmed" mb="sm">
                 Create a <Code>.env.local</Code> file in your project root with:
               </Text>

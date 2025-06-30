@@ -1,34 +1,15 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { useRouter, useSearchParams } from 'next/navigation';
+import { useRouter } from 'next/navigation';
 import { Container, Center, Stack, Text, Loader } from '@mantine/core';
 import { AuthModal } from '@/components/AuthModal';
 import { useAuth } from '@/hooks/useAuth';
 
 export default function AuthPage() {
   const [modalOpened, setModalOpened] = useState(true);
-  const { user, loading, completeMagicLinkSignIn } = useAuth();
+  const { user, loading } = useAuth();
   const router = useRouter();
-  const searchParams = useSearchParams();
-
-  useEffect(() => {
-    // Handle magic link completion
-    const handleMagicLink = async () => {
-      if (typeof window !== 'undefined' && window.location.href.includes('apiKey')) {
-        const email = localStorage.getItem('emailForSignIn');
-        if (email) {
-          try {
-            await completeMagicLinkSignIn(email);
-          } catch (error) {
-            console.error('Magic link sign-in failed:', error);
-          }
-        }
-      }
-    };
-
-    handleMagicLink();
-  }, [completeMagicLinkSignIn]);
 
   useEffect(() => {
     if (!loading && user) {

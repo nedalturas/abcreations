@@ -63,21 +63,29 @@ export function UserMenu() {
 
   return (
     <>
-      <Menu shadow="lg" width={200} radius="lg">
+      <Menu shadow="lg" width={220} radius="lg">
         <Menu.Target>
           <ActionIcon variant="light" size="lg" radius="xl">
-            <Avatar size="sm" radius="xl" color="blue">
-              {initials}
-            </Avatar>
+            {user.photoURL ? (
+              <Avatar src={user.photoURL} size="sm" radius="xl" />
+            ) : (
+              <Avatar size="sm" radius="xl" color="blue">
+                {initials}
+              </Avatar>
+            )}
           </ActionIcon>
         </Menu.Target>
 
         <Menu.Dropdown>
           <Menu.Label>
             <Group gap="xs">
-              <Avatar size="xs" radius="xl" color="blue">
-                {initials}
-              </Avatar>
+              {user.photoURL ? (
+                <Avatar src={user.photoURL} size="xs" radius="xl" />
+              ) : (
+                <Avatar size="xs" radius="xl" color="blue">
+                  {initials}
+                </Avatar>
+              )}
               <div>
                 <Text size="sm" fw={600}>
                   {displayName}
@@ -123,6 +131,24 @@ export function UserMenu() {
       >
         <form onSubmit={profileForm.onSubmit(handleUpdateProfile)}>
           <Stack gap="md">
+            <Group gap="md">
+              {user.photoURL ? (
+                <Avatar src={user.photoURL} size="lg" radius="xl" />
+              ) : (
+                <Avatar size="lg" radius="xl" color="blue">
+                  {initials}
+                </Avatar>
+              )}
+              <div>
+                <Text size="sm" fw={600}>
+                  {user.email}
+                </Text>
+                <Text size="xs" c="dimmed">
+                  Signed in with Google
+                </Text>
+              </div>
+            </Group>
+
             <TextInput
               label="Display Name"
               placeholder="Enter your name"

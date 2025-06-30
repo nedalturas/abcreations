@@ -3,14 +3,10 @@
 import { useState, useEffect, createContext, useContext, ReactNode } from 'react';
 import {
   User,
-  signInWithEmailAndPassword,
-  createUserWithEmailAndPassword,
+  signInWithPopup,
+  GoogleAuthProvider,
   signOut,
   onAuthStateChanged,
-  sendPasswordResetEmail,
-  sendSignInLinkToEmail,
-  isSignInWithEmailLink,
-  signInWithEmailLink,
   updateProfile,
 } from 'firebase/auth';
 import { auth, hasValidConfig } from '@/lib/firebase';
@@ -26,12 +22,8 @@ export interface AuthUser {
 interface AuthContextType {
   user: AuthUser | null;
   loading: boolean;
-  signIn: (email: string, password: string) => Promise<void>;
-  signUp: (email: string, password: string, displayName?: string) => Promise<void>;
+  signInWithGoogle: () => Promise<void>;
   signOutUser: () => Promise<void>;
-  resetPassword: (email: string) => Promise<void>;
-  sendMagicLink: (email: string) => Promise<void>;
-  completeMagicLinkSignIn: (email: string) => Promise<void>;
   updateUserProfile: (displayName: string) => Promise<void>;
 }
 
@@ -83,74 +75,38 @@ export function AuthProvider({ children }: AuthProviderProps) {
     return unsubscribe;
   }, []);
 
-  const signIn = async (email: string, password: string) => {
+  const signInWithGoogle = async () => {
     if (!hasValidConfig() || !auth) {
-      // Mock sign in
+      // Mock Google sign in
       setUser({
         uid: 'demo-user',
-        email: email,
+        email: 'demo@gmail.com',
         displayName: 'Demo User',
-        photoURL: null,
+        photoURL: 'https://via.placeholder.com/40x40?text=DU',
       });
       notifications.show({
         title: 'Demo Mode',
-        message: 'Signed in with demo credentials',
+        message: 'Signed in with demo Google account',
         color: 'blue',
       });
       return;
     }
 
+    const provider = new GoogleAuthProvider();
+    provider.addScope('email');
+    provider.addScope('profile');
+
     try {
-      await signInWithEmailAndPassword(auth, email, password);
+      const result = await signInWithPopup(auth, provider);
       notifications.show({
-        title: 'Welcome back!',
-        message: 'Successfully signed in',
+        title: 'Welcome!',
+        message: `Signed in as ${result.user.displayName}`,
         color: 'green',
       });
     } catch (error: any) {
       const errorMessage = getAuthErrorMessage(error.code);
       notifications.show({
         title: 'Sign In Failed',
-        message: errorMessage,
-        color: 'red',
-      });
-      throw error;
-    }
-  };
-
-  const signUp = async (email: string, password: string, displayName?: string) => {
-    if (!hasValidConfig() || !auth) {
-      // Mock sign up
-      setUser({
-        uid: 'demo-user',
-        email: email,
-        displayName: displayName || 'Demo User',
-        photoURL: null,
-      });
-      notifications.show({
-        title: 'Demo Mode',
-        message: 'Account created with demo credentials',
-        color: 'blue',
-      });
-      return;
-    }
-
-    try {
-      const userCredential = await createUserWithEmailAndPassword(auth, email, password);
-      
-      if (displayName && userCredential.user) {
-        await updateProfile(userCredential.user, { displayName });
-      }
-
-      notifications.show({
-        title: 'Account Created!',
-        message: 'Welcome to BagCraft Pro',
-        color: 'green',
-      });
-    } catch (error: any) {
-      const errorMessage = getAuthErrorMessage(error.code);
-      notifications.show({
-        title: 'Sign Up Failed',
         message: errorMessage,
         color: 'red',
       });
@@ -184,99 +140,6 @@ export function AuthProvider({ children }: AuthProviderProps) {
         color: 'red',
       });
       throw error;
-    }
-  };
-
-  const resetPassword = async (email: string) => {
-    if (!hasValidConfig() || !auth) {
-      notifications.show({
-        title: 'Demo Mode',
-        message: 'Password reset email would be sent in production',
-        color: 'blue',
-      });
-      return;
-    }
-
-    try {
-      await sendPasswordResetEmail(auth, email);
-      notifications.show({
-        title: 'Reset Email Sent',
-        message: 'Check your email for password reset instructions',
-        color: 'green',
-      });
-    } catch (error: any) {
-      const errorMessage = getAuthErrorMessage(error.code);
-      notifications.show({
-        title: 'Reset Failed',
-        message: errorMessage,
-        color: 'red',
-      });
-      throw error;
-    }
-  };
-
-  const sendMagicLink = async (email: string) => {
-    if (!hasValidConfig() || !auth) {
-      notifications.show({
-        title: 'Demo Mode',
-        message: 'Magic link would be sent in production',
-        color: 'blue',
-      });
-      return;
-    }
-
-    const actionCodeSettings = {
-      url: window.location.origin + '/auth/complete',
-      handleCodeInApp: true,
-    };
-
-    try {
-      await sendSignInLinkToEmail(auth, email, actionCodeSettings);
-      localStorage.setItem('emailForSignIn', email);
-      notifications.show({
-        title: 'Magic Link Sent!',
-        message: 'Check your email and click the link to sign in',
-        color: 'green',
-      });
-    } catch (error: any) {
-      const errorMessage = getAuthErrorMessage(error.code);
-      notifications.show({
-        title: 'Failed to Send Link',
-        message: errorMessage,
-        color: 'red',
-      });
-      throw error;
-    }
-  };
-
-  const completeMagicLinkSignIn = async (email: string) => {
-    if (!hasValidConfig() || !auth) {
-      notifications.show({
-        title: 'Demo Mode',
-        message: 'Magic link sign-in completed in demo mode',
-        color: 'blue',
-      });
-      return;
-    }
-
-    if (isSignInWithEmailLink(auth, window.location.href)) {
-      try {
-        await signInWithEmailLink(auth, email, window.location.href);
-        localStorage.removeItem('emailForSignIn');
-        notifications.show({
-          title: 'Welcome!',
-          message: 'Successfully signed in with magic link',
-          color: 'green',
-        });
-      } catch (error: any) {
-        const errorMessage = getAuthErrorMessage(error.code);
-        notifications.show({
-          title: 'Sign In Failed',
-          message: errorMessage,
-          color: 'red',
-        });
-        throw error;
-      }
     }
   };
 
@@ -314,12 +177,8 @@ export function AuthProvider({ children }: AuthProviderProps) {
   const value: AuthContextType = {
     user,
     loading,
-    signIn,
-    signUp,
+    signInWithGoogle,
     signOutUser,
-    resetPassword,
-    sendMagicLink,
-    completeMagicLinkSignIn,
     updateUserProfile,
   };
 
@@ -333,23 +192,19 @@ export function AuthProvider({ children }: AuthProviderProps) {
 // Helper function to get user-friendly error messages
 function getAuthErrorMessage(errorCode: string): string {
   switch (errorCode) {
-    case 'auth/user-not-found':
-      return 'No account found with this email address.';
-    case 'auth/wrong-password':
-      return 'Incorrect password. Please try again.';
-    case 'auth/email-already-in-use':
-      return 'An account with this email already exists.';
-    case 'auth/weak-password':
-      return 'Password should be at least 6 characters long.';
-    case 'auth/invalid-email':
-      return 'Please enter a valid email address.';
-    case 'auth/too-many-requests':
-      return 'Too many failed attempts. Please try again later.';
+    case 'auth/popup-closed-by-user':
+      return 'Sign-in was cancelled. Please try again.';
+    case 'auth/popup-blocked':
+      return 'Pop-up was blocked by your browser. Please allow pop-ups and try again.';
+    case 'auth/cancelled-popup-request':
+      return 'Sign-in was cancelled. Please try again.';
+    case 'auth/account-exists-with-different-credential':
+      return 'An account already exists with the same email but different sign-in credentials.';
     case 'auth/network-request-failed':
       return 'Network error. Please check your connection.';
-    case 'auth/invalid-action-code':
-      return 'The sign-in link is invalid or has expired.';
+    case 'auth/too-many-requests':
+      return 'Too many failed attempts. Please try again later.';
     default:
-      return 'An error occurred. Please try again.';
+      return 'An error occurred during sign-in. Please try again.';
   }
 }
