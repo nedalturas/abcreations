@@ -132,10 +132,7 @@ export default function JobOrdersPage() {
               <div>
                 <Title className="page-title">Job Orders</Title>
                 <Text className="page-subtitle">
-                  Manage manufacturing orders and production schedules
-                  <Text component="span" size="sm" c="green" mt={4}>
-                    ✓ Real-time sync with Firebase
-                  </Text>
+                  Manage job orders and schedules
                 </Text>
               </div>
             </Group>
@@ -218,7 +215,7 @@ export default function JobOrdersPage() {
 
               <div className="order-card-footer">
                 <div className="order-card-meta">
-                  <div className="order-card-price">${order.price.toFixed(2)}</div>
+                  <div className="order-card-price"> ₱{order.price.toFixed(2)}</div>
                   <div className="order-card-deadline">
                     <Package size={14} />
                     Qty: {order.quantity}
@@ -241,7 +238,7 @@ export default function JobOrdersPage() {
             </div>
             <div className="empty-state-title">No job orders yet</div>
             <div className="empty-state-description">
-              Create your first job order to get started with Firebase!
+              Create your first job order to get started.
             </div>
           </div>
         )}
@@ -274,7 +271,7 @@ export default function JobOrdersPage() {
           }
           size="lg"
           centered
-          radius="xl"
+        
         >
           <JobOrderForm
             onSubmit={handleJobOrderSubmit}

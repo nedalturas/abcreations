@@ -133,9 +133,6 @@ export default function RepairsPage() {
                 <Title className="page-title">Repair Orders</Title>
                 <Text className="page-subtitle">
                   Manage all bag repair orders and track their progress
-                  <Text component="span" size="sm" c="green" mt={4}>
-                    ✓ Real-time sync with Firebase
-                  </Text>
                 </Text>
               </div>
             </Group>
@@ -237,7 +234,7 @@ export default function RepairsPage() {
             </div>
             <div className="empty-state-title">No repair orders yet</div>
             <div className="empty-state-description">
-              Create your first repair order to get started with Firebase!
+              Create your first repair order to get started.
             </div>
           </div>
         )}
