@@ -71,14 +71,16 @@ export function AuthProvider({ children }: AuthProviderProps) {
           });
         } else {
           // User is not authorized - sign them out
-          signOut(auth).then(() => {
-            notifications.show({
-              title: 'Access Denied',
-              message: 'Your email address is not authorized to access this application.',
-              color: 'red',
-              autoClose: false,
+          if (auth) {
+            signOut(auth).then(() => {
+              notifications.show({
+                title: 'Access Denied',
+                message: 'Your email address is not authorized to access this application.',
+                color: 'red',
+                autoClose: false,
+              });
             });
-          });
+          }
           setUser(null);
         }
       } else {
