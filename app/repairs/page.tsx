@@ -141,7 +141,7 @@ export default function RepairsPage() {
             </Group>
             
             <Group gap="sm">
-              <FirebaseSync onDataSync={refresh} />
+              {/* <FirebaseSync onDataSync={refresh} /> */}
               
               <Button
                 leftSection={<Plus size={18} />}
