@@ -4,7 +4,7 @@ export interface RepairOrder {
   phoneNumber: string;
   damage: string;
   price: number;
-  picture?: File | string;
+  picture?: File | string | null;
   deadline: string;
   status: 'pending' | 'done' | 'rescheduled';
   createdAt: string;
