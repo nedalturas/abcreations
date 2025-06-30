@@ -1,6 +1,5 @@
 'use client';
 
-import { useState, useEffect } from 'react';
 import {
   Container,
   Grid,
@@ -10,6 +9,8 @@ import {
   Stack,
   Title,
   ActionIcon,
+  Loader,
+  Center,
 } from '@mantine/core';
 import { 
   LayoutDashboard, 
@@ -22,59 +23,11 @@ import {
   AlertCircle,
   Phone
 } from 'lucide-react';
-import { RepairOrder, JobOrder } from '@/types';
+import { useDashboardStats } from '@/hooks/useFirebase';
 import { notifications } from '@mantine/notifications';
 
 export default function Dashboard() {
-  const [repairOrders, setRepairOrders] = useState<RepairOrder[]>([]);
-  const [jobOrders, setJobOrders] = useState<JobOrder[]>([]);
-
-  // Load data from localStorage on component mount
-  useEffect(() => {
-    const savedRepairs = localStorage.getItem('repairOrders');
-    const savedJobs = localStorage.getItem('jobOrders');
-    
-    if (savedRepairs) {
-      setRepairOrders(JSON.parse(savedRepairs));
-    }
-    if (savedJobs) {
-      setJobOrders(JSON.parse(savedJobs));
-    }
-  }, []);
-
-  // Calculate statistics
-  const stats = {
-    totalRepairs: repairOrders.length,
-    totalJobs: jobOrders.length,
-    pendingRepairs: repairOrders.filter(r => r.status === 'pending').length,
-    pendingJobs: jobOrders.filter(j => j.status === 'pending').length,
-    completedRepairs: repairOrders.filter(r => r.status === 'done').length,
-    completedJobs: jobOrders.filter(j => j.status === 'done').length,
-    rescheduledRepairs: repairOrders.filter(r => r.status === 'rescheduled').length,
-    rescheduledJobs: jobOrders.filter(j => j.status === 'rescheduled').length,
-  };
-
-  // Get upcoming deadlines (next 7 days)
-  const getUpcomingDeadlines = () => {
-    const today = new Date();
-    const nextWeek = new Date(today.getTime() + 7 * 24 * 60 * 60 * 1000);
-    
-    const upcomingRepairs = repairOrders.filter(repair => {
-      const deadline = new Date(repair.deadline);
-      return deadline >= today && deadline <= nextWeek && repair.status !== 'done';
-    });
-    
-    const upcomingJobs = jobOrders.filter(job => {
-      const deadline = new Date(job.deadline);
-      return deadline >= today && deadline <= nextWeek && job.status !== 'done';
-    });
-    
-    return [...upcomingRepairs, ...upcomingJobs].sort((a, b) => 
-      new Date(a.deadline).getTime() - new Date(b.deadline).getTime()
-    );
-  };
-
-  const upcomingDeadlines = getUpcomingDeadlines();
+  const { stats, repairOrders, jobOrders, upcomingDeadlines } = useDashboardStats();
 
   const handlePhoneCall = (phoneNumber: string, customerName: string) => {
     const telLink = `tel:${phoneNumber}`;
@@ -108,6 +61,9 @@ export default function Dashboard() {
               <Title className="page-title">Dashboard</Title>
               <Text className="page-subtitle">
                 Overview of your repair and manufacturing operations
+                <Text size="sm" c="green" mt={4}>
+                  ✓ Real-time data with Firebase
+                </Text>
               </Text>
             </div>
           </Group>

@@ -12,34 +12,42 @@ import {
 } from '@mantine/core';
 import { useDisclosure } from '@mantine/hooks';
 import { 
-  FileSpreadsheet, 
+  Database, 
   RefreshCw, 
   Settings, 
   Trash2, 
   Clock,
   CheckCircle,
-  AlertCircle
+  AlertCircle,
+  Upload,
+  Download
 } from 'lucide-react';
-import { GoogleSheetsSetup } from './GoogleSheetsSetup';
-import { useGoogleSheets } from '@/hooks/useGoogleSheets';
+import { FirebaseSetup } from './FirebaseSetup';
+import { notifications } from '@mantine/notifications';
 
-interface GoogleSheetsSyncProps {
-  onDataSync?: (data: { repairOrders: any[]; jobOrders: any[] }) => void;
+interface FirebaseSyncProps {
+  onDataSync?: () => void;
 }
 
-export function GoogleSheetsSync({ onDataSync }: GoogleSheetsSyncProps) {
+export function FirebaseSync({ onDataSync }: FirebaseSyncProps) {
   const [setupOpened, { open: openSetup, close: closeSetup }] = useDisclosure(false);
   const [isSyncing, setIsSyncing] = useState(false);
-  
-  const {
-    config,
-    isConfigured,
-    isLoading,
-    lastSync,
-    saveConfig,
-    clearConfig,
-    syncAll,
-  } = useGoogleSheets();
+  const [config, setConfig] = useState<any>(null);
+  const [lastSync, setLastSync] = useState<Date | null>(null);
+
+  // Load config from localStorage
+  React.useEffect(() => {
+    const savedConfig = localStorage.getItem('firebaseConfig');
+    if (savedConfig) {
+      try {
+        setConfig(JSON.parse(savedConfig));
+      } catch (error) {
+        console.error('Error parsing Firebase config:', error);
+      }
+    }
+  }, []);
+
+  const isConfigured = !!config;
 
   const handleSync = async () => {
     if (!isConfigured) {
@@ -49,17 +57,49 @@ export function GoogleSheetsSync({ onDataSync }: GoogleSheetsSyncProps) {
 
     setIsSyncing(true);
     try {
-      const data = await syncAll();
-      onDataSync?.(data);
+      // Trigger data refresh
+      onDataSync?.();
+      setLastSync(new Date());
+      
+      notifications.show({
+        title: 'Sync Complete!',
+        message: 'Data synchronized with Firebase',
+        color: 'green',
+      });
     } catch (error) {
       console.error('Sync failed:', error);
+      notifications.show({
+        title: 'Sync Failed',
+        message: 'Failed to sync with Firebase',
+        color: 'red',
+      });
     } finally {
       setIsSyncing(false);
     }
   };
 
+  const handleSaveConfig = (newConfig: any) => {
+    setConfig(newConfig);
+    localStorage.setItem('firebaseConfig', JSON.stringify(newConfig));
+    notifications.show({
+      title: 'Configuration Saved',
+      message: 'Firebase integration configured successfully',
+      color: 'green',
+    });
+  };
+
+  const handleClearConfig = () => {
+    setConfig(null);
+    localStorage.removeItem('firebaseConfig');
+    notifications.show({
+      title: 'Configuration Cleared',
+      message: 'Firebase integration disabled',
+      color: 'blue',
+    });
+  };
+
   const getSyncStatus = () => {
-    if (isSyncing || isLoading) {
+    if (isSyncing) {
       return { icon: <Loader size={14} />, color: 'blue', text: 'Syncing...' };
     }
     
@@ -67,11 +107,7 @@ export function GoogleSheetsSync({ onDataSync }: GoogleSheetsSyncProps) {
       return { icon: <AlertCircle size={14} />, color: 'orange', text: 'Not configured' };
     }
     
-    if (lastSync) {
-      return { icon: <CheckCircle size={14} />, color: 'green', text: 'Connected' };
-    }
-    
-    return { icon: <Clock size={14} />, color: 'gray', text: 'Ready to sync' };
+    return { icon: <CheckCircle size={14} />, color: 'green', text: 'Connected' };
   };
 
   const status = getSyncStatus();
@@ -80,15 +116,15 @@ export function GoogleSheetsSync({ onDataSync }: GoogleSheetsSyncProps) {
     <>
       <Group gap="xs">
         <Button
-          leftSection={<FileSpreadsheet size={16} />}
+          leftSection={<Database size={16} />}
           rightSection={status.icon}
           onClick={handleSync}
-          loading={isSyncing || isLoading}
+          loading={isSyncing}
           variant={isConfigured ? 'light' : 'filled'}
           color={isConfigured ? 'green' : 'blue'}
           size="sm"
         >
-          {isConfigured ? 'Sync Sheets' : 'Connect Sheets'}
+          {isConfigured ? 'Firebase' : 'Connect Firebase'}
         </Button>
 
         {isConfigured && (
@@ -114,7 +150,7 @@ export function GoogleSheetsSync({ onDataSync }: GoogleSheetsSyncProps) {
                 <Menu.Item
                   leftSection={<RefreshCw size={14} />}
                   onClick={handleSync}
-                  disabled={isSyncing || isLoading}
+                  disabled={isSyncing}
                 >
                   Sync Now
                 </Menu.Item>
@@ -122,7 +158,7 @@ export function GoogleSheetsSync({ onDataSync }: GoogleSheetsSyncProps) {
                 <Menu.Item
                   leftSection={<Trash2 size={14} />}
                   color="red"
-                  onClick={clearConfig}
+                  onClick={handleClearConfig}
                 >
                   Disconnect
                 </Menu.Item>
@@ -138,10 +174,10 @@ export function GoogleSheetsSync({ onDataSync }: GoogleSheetsSyncProps) {
         )}
       </Group>
 
-      <GoogleSheetsSetup
+      <FirebaseSetup
         opened={setupOpened}
         onClose={closeSetup}
-        onSave={saveConfig}
+        onSave={handleSaveConfig}
         initialConfig={config || undefined}
       />
     </>

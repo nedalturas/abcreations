@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import {
   Container,
   Title,
@@ -13,104 +13,43 @@ import {
   ActionIcon,
   Menu,
   Stack,
+  Loader,
+  Center,
 } from '@mantine/core';
 import { useDisclosure } from '@mantine/hooks';
 import { Wrench, Plus, MoreVertical, Edit, Trash2, Phone, Calendar } from 'lucide-react';
 import { RepairForm } from '@/components/RepairForm';
-import { GoogleSheetsSync } from '@/components/GoogleSheetsSync';
-import { useAutoSheets } from '@/hooks/useAutoSheets';
+import { FirebaseSync } from '@/components/FirebaseSync';
+import { useRepairOrders } from '@/hooks/useFirebase';
 import { RepairOrder } from '@/types';
 import { notifications } from '@mantine/notifications';
 
 export default function RepairsPage() {
-  const [repairOrders, setRepairOrders] = useState<RepairOrder[]>([]);
   const [opened, { open, close }] = useDisclosure(false);
   const [editingOrder, setEditingOrder] = useState<RepairOrder | null>(null);
-  const { saveRepairOrder, isConfigured } = useAutoSheets();
-
-  // Load data from localStorage on component mount
-  useEffect(() => {
-    const savedRepairs = localStorage.getItem('repairOrders');
-    if (savedRepairs) {
-      setRepairOrders(JSON.parse(savedRepairs));
-    }
-  }, []);
-
-  // Save to localStorage whenever repairOrders changes
-  useEffect(() => {
-    localStorage.setItem('repairOrders', JSON.stringify(repairOrders));
-  }, [repairOrders]);
+  
+  const {
+    repairOrders,
+    loading,
+    error,
+    createRepairOrder,
+    updateRepairOrder,
+    deleteRepairOrder,
+    refresh,
+  } = useRepairOrders();
 
   const handleRepairSubmit = async (data: Omit<RepairOrder, 'id' | 'createdAt'>) => {
-    if (editingOrder) {
-      // Update existing order
-      const updatedOrder: RepairOrder = {
-        ...editingOrder,
-        ...data,
-      };
-      setRepairOrders(prev => prev.map(order => 
-        order.id === editingOrder.id ? updatedOrder : order
-      ));
-      
-      // Auto-save to Google Sheets if configured
-      if (isConfigured) {
-        try {
-          await saveRepairOrder(updatedOrder);
-          notifications.show({
-            title: 'Success!',
-            message: 'Repair order updated and synced to Google Sheets',
-            color: 'green',
-          });
-        } catch (error) {
-          notifications.show({
-            title: 'Partially Successful',
-            message: 'Repair order updated locally, but failed to sync to Google Sheets',
-            color: 'yellow',
-          });
-        }
+    try {
+      if (editingOrder) {
+        await updateRepairOrder(editingOrder.id, data);
       } else {
-        notifications.show({
-          title: 'Success!',
-          message: 'Repair order updated successfully',
-          color: 'green',
-        });
+        await createRepairOrder(data);
       }
-    } else {
-      // Create new order
-      const newRepair: RepairOrder = {
-        ...data,
-        id: `repair-${Date.now()}`,
-        createdAt: new Date().toISOString(),
-      };
-      setRepairOrders(prev => [...prev, newRepair]);
-      
-      // Auto-save to Google Sheets if configured
-      if (isConfigured) {
-        try {
-          await saveRepairOrder(newRepair);
-          notifications.show({
-            title: 'Success!',
-            message: 'Repair order created and saved to Google Sheets',
-            color: 'green',
-          });
-        } catch (error) {
-          notifications.show({
-            title: 'Partially Successful',
-            message: 'Repair order created locally, but failed to save to Google Sheets',
-            color: 'yellow',
-          });
-        }
-      } else {
-        notifications.show({
-          title: 'Success!',
-          message: 'Repair order created successfully',
-          color: 'green',
-        });
-      }
+      setEditingOrder(null);
+      close();
+    } catch (error) {
+      console.error('Error submitting repair order:', error);
     }
-    
-    setEditingOrder(null);
-    close();
   };
 
   const handleEdit = (order: RepairOrder) => {
@@ -118,13 +57,12 @@ export default function RepairsPage() {
     open();
   };
 
-  const handleDelete = (orderId: string) => {
-    setRepairOrders(prev => prev.filter(order => order.id !== orderId));
-    notifications.show({
-      title: 'Deleted',
-      message: 'Repair order deleted successfully',
-      color: 'red',
-    });
+  const handleDelete = async (orderId: string) => {
+    try {
+      await deleteRepairOrder(orderId);
+    } catch (error) {
+      console.error('Error deleting repair order:', error);
+    }
   };
 
   const handleNewOrder = () => {
@@ -133,7 +71,6 @@ export default function RepairsPage() {
   };
 
   const handlePhoneCall = (phoneNumber: string, customerName: string) => {
-    // Create tel: link for mobile devices
     const telLink = `tel:${phoneNumber}`;
     window.location.href = telLink;
     
@@ -144,15 +81,6 @@ export default function RepairsPage() {
     });
   };
 
-  const handleDataSync = (data: { repairOrders: RepairOrder[]; jobOrders: any[] }) => {
-    setRepairOrders(data.repairOrders);
-    notifications.show({
-      title: 'Data Synced!',
-      message: `Loaded ${data.repairOrders.length} repair orders from Google Sheets`,
-      color: 'green',
-    });
-  };
-
   const getStatusBadge = (status: string) => {
     return (
       <span className={`status-badge status-${status}`}>
@@ -160,6 +88,36 @@ export default function RepairsPage() {
       </span>
     );
   };
+
+  if (loading) {
+    return (
+      <div className="page-container">
+        <Container size="xl">
+          <Center h={400}>
+            <Stack align="center" gap="md">
+              <Loader size="lg" />
+              <Text>Loading repair orders...</Text>
+            </Stack>
+          </Center>
+        </Container>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="page-container">
+        <Container size="xl">
+          <Center h={400}>
+            <Stack align="center" gap="md">
+              <Text c="red">Error: {error}</Text>
+              <Button onClick={refresh}>Retry</Button>
+            </Stack>
+          </Center>
+        </Container>
+      </div>
+    );
+  }
 
   return (
     <div className="page-container">
@@ -175,17 +133,15 @@ export default function RepairsPage() {
                 <Title className="page-title">Repair Orders</Title>
                 <Text className="page-subtitle">
                   Manage all bag repair orders and track their progress
-                  {isConfigured && (
-                    <Text size="sm" c="green" mt={4}>
-                      ✓ Auto-syncing with Google Sheets
-                    </Text>
-                  )}
+                  <Text size="sm" c="green" mt={4}>
+                    ✓ Real-time sync with Firebase
+                  </Text>
                 </Text>
               </div>
             </Group>
             
             <Group gap="sm">
-              <GoogleSheetsSync onDataSync={handleDataSync} />
+              <FirebaseSync onDataSync={refresh} />
               
               <Button
                 leftSection={<Plus size={18} />}
@@ -209,71 +165,69 @@ export default function RepairsPage() {
 
         {/* Orders Cards */}
         <Stack gap="md">
-          {repairOrders
-            .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
-            .map((order) => (
-              <div key={order.id} className="order-card">
-                <div className="order-card-header">
-                  <div>
-                    <div className="order-card-customer">{order.customerName}</div>
-                    <div className="order-card-phone">{order.phoneNumber}</div>
-                  </div>
-                  <div className="order-card-actions">
-                    <ActionIcon
-                      variant="light"
-                      color="green"
-                      size="lg"
-                      radius="xl"
-                      onClick={() => handlePhoneCall(order.phoneNumber, order.customerName)}
-                      className="phone-button"
-                    >
-                      <Phone size={16} />
-                    </ActionIcon>
-                    
-                    <Menu shadow="lg" width={180} radius="lg">
-                      <Menu.Target>
-                        <ActionIcon variant="light" color="gray" size="lg" radius="xl">
-                          <MoreVertical size={16} />
-                        </ActionIcon>
-                      </Menu.Target>
-
-                      <Menu.Dropdown>
-                        <Menu.Item
-                          leftSection={<Edit size={16} />}
-                          onClick={() => handleEdit(order)}
-                        >
-                          Edit Order
-                        </Menu.Item>
-                        <Menu.Item
-                          leftSection={<Trash2 size={16} />}
-                          color="red"
-                          onClick={() => handleDelete(order.id)}
-                        >
-                          Delete Order
-                        </Menu.Item>
-                      </Menu.Dropdown>
-                    </Menu>
-                  </div>
+          {repairOrders.map((order) => (
+            <div key={order.id} className="order-card">
+              <div className="order-card-header">
+                <div>
+                  <div className="order-card-customer">{order.customerName}</div>
+                  <div className="order-card-phone">{order.phoneNumber}</div>
                 </div>
+                <div className="order-card-actions">
+                  <ActionIcon
+                    variant="light"
+                    color="green"
+                    size="lg"
+                    radius="xl"
+                    onClick={() => handlePhoneCall(order.phoneNumber, order.customerName)}
+                    className="phone-button"
+                  >
+                    <Phone size={16} />
+                  </ActionIcon>
+                  
+                  <Menu shadow="lg" width={180} radius="lg">
+                    <Menu.Target>
+                      <ActionIcon variant="light" color="gray" size="lg" radius="xl">
+                        <MoreVertical size={16} />
+                      </ActionIcon>
+                    </Menu.Target>
 
-                <div className="order-card-body">
-                  <div className="order-card-description">
-                    <strong>Damage:</strong> {order.damage}
-                  </div>
-                </div>
-
-                <div className="order-card-footer">
-                  <div className="order-card-meta">
-                    <div className="order-card-price">${order.price.toFixed(2)}</div>
-                    <div className="order-card-deadline">
-                      <Calendar size={14} />
-                      {new Date(order.deadline).toLocaleDateString()}
-                    </div>
-                  </div>
-                  {getStatusBadge(order.status)}
+                    <Menu.Dropdown>
+                      <Menu.Item
+                        leftSection={<Edit size={16} />}
+                        onClick={() => handleEdit(order)}
+                      >
+                        Edit Order
+                      </Menu.Item>
+                      <Menu.Item
+                        leftSection={<Trash2 size={16} />}
+                        color="red"
+                        onClick={() => handleDelete(order.id)}
+                      >
+                        Delete Order
+                      </Menu.Item>
+                    </Menu.Dropdown>
+                  </Menu>
                 </div>
               </div>
-            ))}
+
+              <div className="order-card-body">
+                <div className="order-card-description">
+                  <strong>Damage:</strong> {order.damage}
+                </div>
+              </div>
+
+              <div className="order-card-footer">
+                <div className="order-card-meta">
+                  <div className="order-card-price">${order.price.toFixed(2)}</div>
+                  <div className="order-card-deadline">
+                    <Calendar size={14} />
+                    {new Date(order.deadline).toLocaleDateString()}
+                  </div>
+                </div>
+                {getStatusBadge(order.status)}
+              </div>
+            </div>
+          ))}
         </Stack>
         
         {repairOrders.length === 0 && (
@@ -283,7 +237,7 @@ export default function RepairsPage() {
             </div>
             <div className="empty-state-title">No repair orders yet</div>
             <div className="empty-state-description">
-              Create your first repair order or sync from Google Sheets to get started
+              Create your first repair order to get started with Firebase!
             </div>
           </div>
         )}
