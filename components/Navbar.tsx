@@ -6,6 +6,8 @@ import { useDisclosure } from '@mantine/hooks';
 import { LayoutDashboard, Wrench, Briefcase } from 'lucide-react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
+import { UserMenu } from './UserMenu';
+import { useAuth } from '@/hooks/useAuth';
 
 const navigation = [
   { name: 'Dashboard', href: '/', icon: LayoutDashboard },
@@ -16,6 +18,12 @@ const navigation = [
 export function Navbar() {
   const [opened, { toggle, close }] = useDisclosure(false);
   const pathname = usePathname();
+  const { user } = useAuth();
+
+  // Don't show navbar on auth pages
+  if (pathname === '/auth' || pathname === '/auth/complete') {
+    return null;
+  }
 
   return (
     <div className="navbar">
@@ -44,8 +52,11 @@ export function Navbar() {
             })}
           </Group>
 
-          {/* Mobile Menu Button */}
-          <Burger opened={opened} onClick={toggle} hiddenFrom="sm" size="sm" />
+          {/* User Menu and Mobile Menu Button */}
+          <Group gap="sm">
+            {user && <UserMenu />}
+            <Burger opened={opened} onClick={toggle} hiddenFrom="sm" size="sm" />
+          </Group>
         </Group>
       </Container>
 
