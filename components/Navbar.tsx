@@ -29,7 +29,8 @@ export function Navbar() {
     <div className="navbar">
       <Container>
         <Group justify="space-between" h={70}>
-          <Group>
+          {/* Left side - Logo */}
+          <Group gap="sm">
             <svg fill="#FF385C" height="25px" width="25px" version="1.1" id="Capa_1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 489.6 489.6" stroke="#FF385C" strokeWidth="0.004896" transform="matrix(1, 0, 0, 1, 0, 0)">
               <g id="SVGRepo_bgCarrier" strokeWidth="1"></g>
               <g id="SVGRepo_tracerCarrier" strokeLinecap="round" strokeLinejoin="round" stroke="#050505" strokeWidth="16.646400000000003">
@@ -49,8 +50,8 @@ export function Navbar() {
             </Text>
           </Group>
 
-          {/* Desktop Navigation */}
-          <Group visibleFrom="sm">
+          {/* Right side - Desktop Navigation and User Menu */}
+          <Group gap="md" visibleFrom="sm">
             {navigation.map((item) => {
               const Icon = item.icon;
               const isActive = pathname === item.href;
@@ -70,9 +71,10 @@ export function Navbar() {
             {user && <UserMenu />}
           </Group>
 
-          {/* User Menu and Mobile Menu Button */}
-          <Group gap="sm">
-            <Burger opened={opened} onClick={toggle} hiddenFrom="sm" size="sm" />
+          {/* Mobile - User Menu and Burger */}
+          <Group gap="sm" hiddenFrom="sm">
+            {user && <UserMenu />}
+            <Burger opened={opened} onClick={toggle} size="sm" />
           </Group>
         </Group>
       </Container>
