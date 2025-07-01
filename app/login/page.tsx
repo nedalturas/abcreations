@@ -43,20 +43,6 @@ export default function LoginPage() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-indigo-50">
-      {/* Header */}
-      <div className="absolute top-0 left-0 right-0 z-10">
-        <Container size="xl" py="lg">
-          <Group>
-            <svg fill="#FF385C" height="32px" width="32px" version="1.1" id="Capa_1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 489.6 489.6">
-              <path d="M466.1,115c-9.7,0-17.5,7.8-17.5,17.5v54.8h-27.2V89.8L188.3,103V78.5h12.8V22.1h-12.8V9.7c0-5.4-4.3-9.7-9.7-9.7 s-9.7,4.3-9.7,9.7v12.4h-12.8v56.3h12.7v24.5c0,0.4,0,0.8,0,1.2L5.6,113.4v85.1l17.1,0.8v82h16.7v35h13.2v39.2 c0,5.4,4.3,9.7,9.7,9.7s9.7-4.3,9.7-9.7v-39.2h13.2v-35h16.7V204l182.2,10.1v180.7H5.6v94.8h416.2V282.9H449v54.8 c0,9.7,7.8,17.5,17.5,17.5s17.5-7.8,17.5-17.5V132.5C483.6,122.8,475.8,115,466.1,115z M448.6,263.1h-27.2v-56.3h27.2V263.1z"/>
-            </svg>
-            <Text size="xl" fw={700} c="#FF385C">
-              Alturas Bag Creations
-            </Text>
-          </Group>
-        </Container>
-      </div>
-
       {/* Main Content */}
       <div className="min-h-screen flex items-center justify-center px-4 pt-20">
         <Container size="sm">
@@ -67,9 +53,6 @@ export default function LoginPage() {
             <Title order={1} size="h1" fw={700} mb="sm" className="text-gray-900">
               Welcome to ABC Portal
             </Title>
-            <Text size="lg" c="dimmed" maw={400} mx="auto">
-              Professional bag repair and manufacturing management system
-            </Text>
           </div>
 
           <Paper shadow="xl" radius="xl" p="xl" className="border border-gray-100">
@@ -83,32 +66,6 @@ export default function LoginPage() {
               )}
 
               {/* Features Grid */}
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 my-6">
-                <div className="text-center p-4 bg-gradient-to-br from-green-50 to-emerald-50 rounded-xl border border-green-100">
-                  <div className="inline-flex items-center justify-center w-12 h-12 bg-green-500 rounded-lg mb-3">
-                    <Shield size={24} className="text-white" />
-                  </div>
-                  <Text size="sm" fw={600} mb="xs">Secure Access</Text>
-                  <Text size="xs" c="dimmed">Google authentication</Text>
-                </div>
-                
-                <div className="text-center p-4 bg-gradient-to-br from-blue-50 to-cyan-50 rounded-xl border border-blue-100">
-                  <div className="inline-flex items-center justify-center w-12 h-12 bg-blue-500 rounded-lg mb-3">
-                    <Database size={24} className="text-white" />
-                  </div>
-                  <Text size="sm" fw={600} mb="xs">Real-time Data</Text>
-                  <Text size="xs" c="dimmed">Firebase integration</Text>
-                </div>
-                
-                <div className="text-center p-4 bg-gradient-to-br from-purple-50 to-violet-50 rounded-xl border border-purple-100">
-                  <div className="inline-flex items-center justify-center w-12 h-12 bg-purple-500 rounded-lg mb-3">
-                    <Users size={24} className="text-white" />
-                  </div>
-                  <Text size="sm" fw={600} mb="xs">Team Management</Text>
-                  <Text size="xs" c="dimmed">Collaborative workspace</Text>
-                </div>
-              </div>
-
               <Divider label="Sign in to continue" labelPosition="center" />
 
               <Button
@@ -176,7 +133,7 @@ export default function LoginPage() {
               {hasValidConfig() && (
                 <Alert icon={<AlertCircle size={16} />} color="gray" variant="light" radius="lg">
                   <Text size="xs" c="dimmed">
-                    <strong>Troubleshooting:</strong> If you're having issues signing in, make sure pop-ups are enabled 
+                    <strong>Troubleshooting:</strong> If you're having issues signing in, make sure pop-ups are enabled
                     and your email is authorized. Contact support if problems persist.
                   </Text>
                 </Alert>
@@ -185,12 +142,7 @@ export default function LoginPage() {
           </Paper>
 
           {/* Footer */}
-          <div className="text-center mt-8">
-            <Text size="xs" c="dimmed">
-              By signing in, you agree to our terms of service and privacy policy
-            </Text>
-          </div>
-        </Container>
+       </Container>
       </div>
 
       {/* Background Decoration */}
