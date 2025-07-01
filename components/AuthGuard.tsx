@@ -15,33 +15,29 @@ export function AuthGuard({ children }: AuthGuardProps) {
   const pathname = usePathname();
 
   useEffect(() => {
-    if (!loading && !user && pathname !== '/auth') {
-      router.push('/auth');
+    if (!loading && !user && pathname !== '/login' && pathname !== '/auth') {
+      router.push('/login');
     }
   }, [user, loading, router, pathname]);
 
   if (loading) {
     return (
-      <div className="page-container">
-        <Center h="100vh">
-          <Stack align="center" gap="md">
-            <Loader size="lg" />
-            <Text>Loading...</Text>
-          </Stack>
-        </Center>
+      <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-indigo-50 flex items-center justify-center">
+        <Stack align="center" gap="md">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+          <Text size="lg" c="dimmed">Loading...</Text>
+        </Stack>
       </div>
     );
   }
 
-  if (!user && pathname !== '/auth') {
+  if (!user && pathname !== '/login' && pathname !== '/auth') {
     return (
-      <div className="page-container">
-        <Center h="100vh">
-          <Stack align="center" gap="md">
-            <Loader size="lg" />
-            <Text>Redirecting to sign in...</Text>
-          </Stack>
-        </Center>
+      <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-indigo-50 flex items-center justify-center">
+        <Stack align="center" gap="md">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+          <Text size="lg" c="dimmed">Redirecting to sign in...</Text>
+        </Stack>
       </div>
     );
   }
