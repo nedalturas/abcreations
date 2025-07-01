@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { repairOrdersService, jobOrdersService } from '@/lib/firebaseService';
 import { RepairOrder, JobOrder } from '@/types';
 import { notifications } from '@mantine/notifications';
+import '@mantine/notifications/styles.css';
 
 // Hook for managing repair orders with Firebase
 export function useRepairOrders() {
@@ -47,6 +48,7 @@ export function useRepairOrders() {
         title: 'Success!',
         message: 'Repair order created successfully',
         color: 'green',
+        position: 'top-center',
       });
       return id;
     } catch (err) {
@@ -54,6 +56,7 @@ export function useRepairOrders() {
         title: 'Error',
         message: 'Failed to create repair order',
         color: 'red',
+        position: 'top-center',
       });
       throw err;
     }
@@ -66,12 +69,14 @@ export function useRepairOrders() {
         title: 'Success!',
         message: 'Repair order updated successfully',
         color: 'green',
+        position: 'top-center',
       });
     } catch (err) {
       notifications.show({
         title: 'Error',
         message: 'Failed to update repair order',
         color: 'red',
+        position: 'top-center',
       });
       throw err;
     }
@@ -84,12 +89,14 @@ export function useRepairOrders() {
         title: 'Success!',
         message: 'Repair order deleted successfully',
         color: 'green',
+        position: 'top-center',
       });
     } catch (err) {
       notifications.show({
         title: 'Error',
         message: 'Failed to delete repair order',
         color: 'red',
+        position: 'top-center',
       });
       throw err;
     }
@@ -104,6 +111,7 @@ export function useRepairOrders() {
         title: 'Error',
         message: 'Failed to upload image',
         color: 'red',
+        position: 'top-center',
       });
       throw err;
     }
@@ -163,6 +171,7 @@ export function useJobOrders() {
         title: 'Success!',
         message: 'Job order created successfully',
         color: 'green',
+        position: 'top-center',
       });
       return id;
     } catch (err) {
@@ -170,6 +179,7 @@ export function useJobOrders() {
         title: 'Error',
         message: 'Failed to create job order',
         color: 'red',
+        position: 'top-center',
       });
       throw err;
     }
@@ -182,12 +192,14 @@ export function useJobOrders() {
         title: 'Success!',
         message: 'Job order updated successfully',
         color: 'green',
+        position: 'top-center',
       });
     } catch (err) {
       notifications.show({
         title: 'Error',
         message: 'Failed to update job order',
         color: 'red',
+        position: 'top-center',
       });
       throw err;
     }
@@ -200,12 +212,14 @@ export function useJobOrders() {
         title: 'Success!',
         message: 'Job order deleted successfully',
         color: 'green',
+        position: 'top-center',
       });
     } catch (err) {
       notifications.show({
         title: 'Error',
         message: 'Failed to delete job order',
         color: 'red',
+        position: 'top-center',
       });
       throw err;
     }

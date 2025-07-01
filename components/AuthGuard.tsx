@@ -23,7 +23,7 @@ export function AuthGuard({ children }: AuthGuardProps) {
   if (loading) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-indigo-50 flex items-center justify-center">
-        <Stack align="center" gap="md">
+        <Stack justify='center' align="center" gap="md">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
           <Text size="lg" c="dimmed">Loading...</Text>
         </Stack>
@@ -34,7 +34,7 @@ export function AuthGuard({ children }: AuthGuardProps) {
   if (!user && pathname !== '/login' && pathname !== '/auth') {
     return (
       <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-indigo-50 flex items-center justify-center">
-        <Stack align="center" gap="md">
+        <Stack justify='center' align="center" gap="md">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
           <Text size="lg" c="dimmed">Redirecting to sign in...</Text>
         </Stack>
