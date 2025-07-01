@@ -99,22 +99,6 @@ export default function LoginPage() {
                 </Group>
               </Alert>
 
-              {/* Features List */}
-              <div className="space-y-3 pt-4">
-                <Group gap="sm">
-                  <CheckCircle size={16} className="text-green-500" />
-                  <Text size="sm" c="dimmed">Manage repair orders and job schedules</Text>
-                </Group>
-                <Group gap="sm">
-                  <CheckCircle size={16} className="text-green-500" />
-                  <Text size="sm" c="dimmed">Track customer information and deadlines</Text>
-                </Group>
-                <Group gap="sm">
-                  <CheckCircle size={16} className="text-green-500" />
-                  <Text size="sm" c="dimmed">Real-time dashboard and analytics</Text>
-                </Group>
-              </div>
-
               <Divider />
 
               {/* Help Section */}
@@ -142,7 +126,7 @@ export default function LoginPage() {
           </Paper>
 
           {/* Footer */}
-       </Container>
+        </Container>
       </div>
 
       {/* Background Decoration */}
