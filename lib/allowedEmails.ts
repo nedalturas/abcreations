@@ -4,8 +4,8 @@
 export const ALLOWED_EMAILS = [
   // Add your allowed email addresses here
   'nedalturas527@gmail.com',
-  'admin@yourdomain.com',
-  'manager@yourdomain.com',
+  'paulalturas0@gmail.com',
+  'alturaselsa03@gmail.com'
   // Add more emails as needed
 ];
 
