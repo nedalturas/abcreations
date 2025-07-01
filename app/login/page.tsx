@@ -50,7 +50,7 @@ export default function LoginPage() {
             <div className="inline-flex items-center justify-center w-20 h-20 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-2xl mb-6 shadow-lg">
               <Building2 size={40} className="text-white" />
             </div>
-            <Title order={1} size="h1" fw={700} mb="sm" className="text-gray-900">
+            <Title order={1} size="h1" fw={700} mb="sm"  className="text-gray-900">
               Welcome to ABC Portal
             </Title>
           </div>
@@ -69,19 +69,18 @@ export default function LoginPage() {
               <Divider label="Sign in to continue" labelPosition="center" />
 
               <Button
-                leftSection={<Chrome size={20} />}
+                // leftSection={<Chrome size={20} />}
                 onClick={handleGoogleSignIn}
                 loading={isLoading}
                 size="lg"
                 fullWidth
-                variant="gradient"
-                gradient={{ from: 'blue', to: 'cyan', deg: 45 }}
+                variant="filled"
                 radius="xl"
-                style={{
-                  height: '56px',
-                  fontSize: '16px',
-                  fontWeight: 600,
-                }}
+                // style={{
+                //   height: '56px',
+                //   fontSize: '16px',
+                //   fontWeight: 600,
+                // }}
               >
                 {hasValidConfig() ? 'Continue with Google' : 'Continue with Demo'}
               </Button>
@@ -99,7 +98,7 @@ export default function LoginPage() {
                 </Group>
               </Alert>
 
-              <Divider />
+                            <Divider />
 
               {/* Help Section */}
               <div className="text-center">
@@ -126,7 +125,7 @@ export default function LoginPage() {
           </Paper>
 
           {/* Footer */}
-        </Container>
+       </Container>
       </div>
 
       {/* Background Decoration */}
